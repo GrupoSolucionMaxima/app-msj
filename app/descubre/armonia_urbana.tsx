@@ -15,10 +15,10 @@ export interface ContentItem {
 }
 
 type ImageFromApi = {
-    id: number;
-    path: string;
-    sort_order: number;
-    created_at?: string | null;
+  id: number;
+  path: string;
+  sort_order: number;
+  created_at?: string | null;
 };
 
 type ArticleFromApi = {
@@ -26,13 +26,13 @@ type ArticleFromApi = {
   title: string;
   category: string;
   notes: string | null;
-  publish_date: string;     
+  publish_date: string;
   created_at: string | null;
   status?: "queue" | "finished";
   images?: ImageFromApi[];
   image_url?: string;
   description?: string;
-  location?: string; 
+  location?: string;
   duration?: string;
   stops?: string;
   difficulty?: string;
@@ -44,7 +44,7 @@ type HomeContentItem = ContentItem & Partial<ArticleFromApi>;
 const API_BASE = "https://msj.gruponbf-testlab.com";
 const API_URL = `${API_BASE.replace(/\/+$/, "")}/api/articles`;
 
-const authHeader = {}; 
+const authHeader = {};
 
 const formatDate = (d?: string | null) => {
   if (!d) return "";
@@ -58,67 +58,68 @@ const computeStatus = (publishDate: string, incoming?: "queue" | "finished"): "q
 };
 
 const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
-    const publishDate = formatDate(a.publish_date);
-    const uploadDate  = formatDate(a.created_at);
-    
-    let imageUrl = '';
-    
-    if (a.images && a.images.length > 0 && a.images[0].path) {
-        const imagePath = a.images[0].path;
-        const base = API_BASE.replace(/\/+$/, ""); 
-        const path = imagePath.replace(/^\/+/, ""); 
-        imageUrl = `${base}/storage/${path}`; 
-    } else if (a.image_url) {
-        imageUrl = a.image_url; 
-    }
+  const publishDate = formatDate(a.publish_date);
+  const uploadDate = formatDate(a.created_at);
 
-    const categoryColor = a.category.toLowerCase().includes("armonía urbana") ? 'bg-[#EE3048]' : 'bg-primary';
+  let imageUrl = '';
 
-    return {
-        id: String(a.id),
-        title: a.title,
-        category: a.category,
-        notes: a.notes ?? "",
-        publishDate,
-        uploadDate,
-        status: computeStatus(publishDate, a.status),
-        
-        image_url: imageUrl, 
-        
-        description: a.description,
-        location: a.location,
-        duration: a.duration,
-        stops: a.stops,
-        difficulty: a.difficulty,
-        event_time: a.event_time,
-        categoryColor: categoryColor
-    };
+  if (a.images && a.images.length > 0 && a.images[0].path) {
+    const imagePath = a.images[0].path;
+    const base = API_BASE.replace(/\/+$/, "");
+    const path = imagePath.replace(/^\/+/, "");
+    imageUrl = `${base}/storage/${path}`;
+  } else if (a.image_url) {
+    imageUrl = a.image_url;
+  }
+
+  const categoryColor = a.category.toLowerCase().includes("armonía urbana") ? 'bg-[#EE3048]' : 'bg-primary';
+
+  return {
+    id: String(a.id),
+    title: a.title,
+    category: a.category,
+    notes: a.notes ?? "",
+    publishDate,
+    uploadDate,
+    status: computeStatus(publishDate, a.status),
+
+    image_url: imageUrl,
+
+    description: a.description,
+    location: a.location,
+    duration: a.duration,
+    stops: a.stops,
+    difficulty: a.difficulty,
+    event_time: a.event_time,
+    categoryColor: categoryColor
+  };
 };
 
 const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
-  const DEFAULT_LAT = '9.9327'; 
+  const DEFAULT_LAT = '9.9327';
   const DEFAULT_LNG = '-84.0796';
-  
+
   let lat = DEFAULT_LAT;
   let lng = DEFAULT_LNG;
   let indications = item.location || '';
-  
+
   if (item.location) {
-      const parts = item.location.split(',');
-      if (parts.length >= 2) {
-          lat = parts[0].trim();
-          lng = parts[1].trim();
-          indications = item.location; 
-      }
+    const parts = item.location.split(',');
+    if (parts.length >= 2) {
+      lat = parts[0].trim();
+      lng = parts[1].trim();
+      indications = item.location;
+    }
   }
 
-  const imageSource = item.image_url 
-      ? { uri: item.image_url } 
-      : require('../../assets/descubre/armonia-urbana/parque-nacional.png'); 
+  const imageSource = item.image_url
+    ? { uri: item.image_url }
+    : require('../../assets/descubre/armonia-urbana/parque-nacional.png');
 
   return {
     id: item.id,
-    image: imageSource as any, 
+    image: imageSource as any,
+    title:item.title,
     link: {
       pathname: './[id]',
       params: {
@@ -126,7 +127,7 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
         title: item.title,
         lat: lat,
         lng: lng,
-        imgMain: JSON.stringify([item.image_url]), 
+        imgMain: JSON.stringify([item.image_url]),
         indications: indications,
         description: item.description || item.notes || 'Sin descripción.',
       }
@@ -158,23 +159,23 @@ export default function ArmoniaUrbana() {
             ...authHeader,
           },
         });
-        
+
         if (!res.ok) {
           const text = await res.text();
           throw new Error(`HTTP ${res.status} - ${text}`);
         }
-        
+
         const json = await res.json();
-        
+
         if (!json || json.ok !== true || !Array.isArray(json.data)) {
           throw new Error("Respuesta inesperada del servidor");
         }
-        
+
         const mappedArticles = json.data.map(mapArticleForHome) as HomeContentItem[];
 
         // 3. FILTRAR POR "Armonía Urbana"
         const filteredData = mappedArticles
-          .filter(item => 
+          .filter(item =>
             item.category.toLowerCase().includes("armonía urbana")
           )
           .map(mapApiDataToCoverItem);
@@ -194,15 +195,15 @@ export default function ArmoniaUrbana() {
 
 
   const handleBack = useCallback((fallback: string = '/(tabs)/home') => {
-  if (router.canGoBack()) {
-    router.back();
-    return;
-  }
-  const parent =
-    pathname.split('/').slice(0, -1).join('/') || fallback;
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    const parent =
+      pathname.split('/').slice(0, -1).join('/') || fallback;
 
-  router.replace(parent as any);
-}, [router, pathname]);
+    router.replace(parent as any);
+  }, [router, pathname]);
 
   // 4. Renderizado con manejo de estados
   const renderContent = () => {
@@ -213,9 +214,9 @@ export default function ArmoniaUrbana() {
         </View>
       );
     }
-    
+
     if (error) {
-       return (
+      return (
         <View style={styles.statusContainer}>
           <Text style={styles.errorText}>❌ {error}</Text>
         </View>
@@ -229,7 +230,7 @@ export default function ArmoniaUrbana() {
         </View>
       );
     }
-
+    console.log("Estos datos: ", data[0])
     return <CoverflowCarousel data={data} />;
   }
 

@@ -21,6 +21,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 // ===== Tipo mínimo
 type CoverItem = {
@@ -35,37 +36,37 @@ const DATA: CoverItem[] = [
   {
     id: 'parque_nacional',
     image: require('../../assets/tours/tour_1.png'),
-    video: require('../../assets/videos/ruta1.mp4'),
+    video: { uri: 'curOmw2cqp8' },
     title: 'Parque Nacional',
   },
   {
     id: 'templos_parroquiales',
     image: require('../../assets/tours/templos_parroquiales.png'),
-    video: require('../../assets/videos/ruta2.mp4'),
+    video: { uri: 'mnHCCqMGEgk' },
     title: 'Templos Parroquiales',
   },
   {
     id: 'tour_san_jose_historico',
     image: require('../../assets/tours/tour_san_jose_historico.png'),
-    video: require('../../assets/videos/ruta3.mp4'),
+    video: { uri: 'K9lVXhKku5A' },
     title: 'Tour San José Histórico',
   },
   {
     id: 'tour_paseo_de_los_museos',
     image: require('../../assets/tours/tour_paseo_de_los_museos.png'),
-    video: require('../../assets/videos/ruta4.mp4'),
+    video: { uri: 'mnHCCqMGEgk' },
     title: 'Tour Paseo de los Museos',
   },
   {
     id: '_el_mejor_cafe_del_mundo',
     image: require('../../assets/tours/_el_mejor_cafe_del_mundo.png'),
-    video: require('../../assets/videos/ruta5.mp4'),
+    video: { uri: 'curOmw2cqp8' },
     title: 'El Mejor Café del Mundo',
   },
   {
     id: 'parques_y_monumentos',
     image: require('../../assets/tours/parques_y_monumentos.png'),
-    video: { uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' },
+    video: { uri: 'mnHCCqMGEgk' },
     title: 'Parques y Monumentos',
   },
 ];
@@ -102,7 +103,7 @@ export default function RutasScreen() {
   const closeModal = async () => {
     try {
       await videoRef.current?.pauseAsync();
-    } catch {}
+    } catch { }
     setVisible(false);
     setCurrent(null);
   };
@@ -112,8 +113,8 @@ export default function RutasScreen() {
     return typeof current.video === 'number'
       ? current.video
       : current.video.uri
-      ? { uri: current.video.uri }
-      : undefined;
+        ? current.video.uri 
+        : undefined;
   }, [current]);
 
   const keyExtractor = (i: CoverItem) => i.id;
@@ -182,16 +183,16 @@ export default function RutasScreen() {
             </View>
 
             <View style={styles.videoWrap}>
-              {videoSource ? (
-                <Video
-                  ref={videoRef}
-                  source={videoSource}
-                  style={styles.video}
-                  useNativeControls
-                  shouldPlay
-                  resizeMode={ResizeMode.CONTAIN}
-                  isLooping={false}
-                />
+              {true ? (
+              
+                  <YoutubePlayer
+                    height={200}
+                    width={300}
+                    play={true}
+                    videoId={videoSource} // Reemplaza con el ID de tu video
+                  />
+        
+
               ) : (
                 <Text style={styles.noVideo}>No hay video disponible</Text>
               )}

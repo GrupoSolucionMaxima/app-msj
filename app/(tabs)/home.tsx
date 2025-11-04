@@ -22,9 +22,9 @@ const screenWidth = Dimensions.get('window').width;
 
 
 export default function HomeScreen() {
-  const firstCarouselImgs: { id: string; source: ImageSourcePropType, link: any }[] = [
-    { id: '1', source: require('../../assets/images/armonia-urbana.png'), link: '/descubre/armonia_urbana' },
-    { id: '2', source: require('../../assets/images/arte-cultura.png'), link: '/descubre/arte_cultural'  },
+  const firstCarouselImgs: { id: string; source: ImageSourcePropType, link: any }[] = [ //Iconos-APP-MC2025_Arte-y-Cultura
+    { id: '1', source: require('../../assets/images/iconosbanner/Iconos-APP-MC2025_Deporte.png'), link: '/descubre/armonia_urbana' },
+    { id: '2', source: require('../../assets/images/iconosbanner/Iconos-APP-MC2025_Arte-y-Cultura.png'), link: '/descubre/arte_cultural'  },
     { id: '3', source: require('../../assets/images/deporte-recreacion.png'), link: '/descubre/deporte_recreacion'  },
     { id: '4', source: require('../../assets/images/economia-local.png'), link: '/descubre/economia_local'  },
     { id: '5', source: require('../../assets/images/gastronomia.png'), link: '/descubre/gastronomia' },
