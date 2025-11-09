@@ -12,12 +12,12 @@ import {
 
 export default function TabTwoScreen() {
   const firstCarouselImgs: Item[] = [
-    { id: '1', source: require('../../assets/descubre-imgs/armonia-urbana.png'), link: '/descubre/armonia_urbana' },
-    { id: '2', source: require('../../assets/descubre-imgs/arte-cultural.png'),   link: '/descubre/arte_cultural' },
-    { id: '3', source: require('../../assets/descubre-imgs/deporte-recreacion.png'), link: '/descubre/deporte_recreacion' },
-    { id: '4', source: require('../../assets/descubre-imgs/economia-local.png'), link: '/descubre/economia_local' },
-    { id: '5', source: require('../../assets/descubre-imgs/gastronomia.png'),    link: '/descubre/gastronomia' },
-    { id: '6', source: require('../../assets/descubre-imgs/patrimonio.png'),     link: '/descubre/patrimonio' },
+    { id: '1', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Armonia-Urbana-2-2.png'), link: '/descubre/armonia_urbana' },
+    { id: '2', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Arte-y-Cultura-2-2.png'), link: '/descubre/arte_cultural' },
+    { id: '3', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Deporte-2-2.png'), link: '/descubre/deporte_recreacion' },
+    { id: '4', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Economia-Local-2-2.png'), link: '/descubre/economia_local' },
+    { id: '5', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Gastronomia-2-2.png'), link: '/descubre/gastronomia' },
+    { id: '6', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Patrimonio-2-2.png'), link: '/descubre/patrimonio' },
   ];
 
   return (

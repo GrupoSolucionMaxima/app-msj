@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Dimensions, Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
 
 import HorizontalGradientCarousel from '@/components/HorizontalGradientCarousel';
-import HorizontalImageCarousel from '@/components/HorizontalImageCarousel';
+import HorizontalImageCarousel, { Item } from '@/components/HorizontalImageCarousel';
 import LogoGrid from '@/components/LogoGrid';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedView } from '@/components/ThemedView';
 import { ResizeMode, Video } from 'expo-av';
+import { usePathname, useRouter } from 'expo-router';
 
 // Utilidad para barajar sin mutar el original
 function shuffle<T>(arr: T[]): T[] {
@@ -17,18 +18,140 @@ function shuffle<T>(arr: T[]): T[] {
   }
   return a;
 }
+const API_BASE = "https://msj.gruponbf-testlab.com";
+const API_URL = `${API_BASE.replace(/\/+$/, "")}/api/articles`;
+const authHeader = {};
 
-const screenWidth = Dimensions.get('window').width;
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  category: string;
+  uploadDate: string;
+  publishDate: string;
+  status: "queue" | "finished";
+  notes: string;
+  categoryColor?: string;
+}
+
+type ImageFromApi = {
+  id: number;
+  path: string;
+  sort_order: number;
+  created_at?: string | null;
+};
+
+type ArticleFromApi = {
+  id: number;
+  title: string;
+  category: string;
+  notes: string | null;
+  publish_date: string;
+  created_at: string | null;
+  status?: "queue" | "finished";
+  images?: ImageFromApi[];
+  image_url?: string;
+  description?: string;
+  location?: string;
+  duration?: string;
+  stops?: string;
+  difficulty?: string;
+  event_time?: string;
+};
+
+const mapArticleForHome = (a: ArticleFromApi): Item => {
+  let imageUrl = '';
+
+  if (a.images && a.images.length > 0 && a.images[0].path) {
+    const imagePath = a.images[0].path;
+    const base = API_BASE.replace(/\/+$/, "");
+    const path = imagePath.replace(/^\/+/, "");
+    imageUrl = `${base}/storage/${path}`;
+  } else if (a.image_url) {
+    imageUrl = a.image_url;
+  }
+
+  return {
+    id: String(a.id),
+    source: { uri: imageUrl },
+    title: a.category.toLocaleLowerCase() === "info. viajero" ? a.title : '',
+    link: a.category.toLocaleLowerCase() === "info. viajero" ? '/info' : '/experiencias'
+  };
+};
+
 
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // 1. ESTADO PARA LOS DATOS DINÁMICOS
+  const [data, setData] = useState<Item[]>([]);
+  const [dataInfo, setDataInfo] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+
+
+  useEffect(() => {
+    const fetchExperencia = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            ...authHeader,
+          },
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status} - ${text}`);
+        }
+
+        const json = await res.json();
+
+        if (!json || json.ok !== true || !Array.isArray(json.data)) {
+          throw new Error("Respuesta inesperada del servidor");
+        }
+
+        const mappedArticles = json.data as ArticleFromApi[];;
+
+        // 3. FILTRAR POR "Experencia"
+        const filteredData = mappedArticles
+          .filter(item =>
+            item.category.toLowerCase().includes("experiencia")
+          )
+          .map(mapArticleForHome);
+        // 4. FILTRAR POR "Info al viajero"
+        const filteredDataInfo = mappedArticles
+          .filter(item =>
+            item.category.toLowerCase().includes("info. viajero")
+          )
+          .map(mapArticleForHome);
+
+        setData(filteredData);
+        setDataInfo(filteredDataInfo);
+      } catch (e: any) {
+        console.error("Fetch Error en Experencia :", e);
+        setError("Error al cargar el contenido. Intente de nuevo.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExperencia();
+  }, []);
+
+
   const firstCarouselImgs: { id: string; source: ImageSourcePropType, link: any }[] = [ //Iconos-APP-MC2025_Arte-y-Cultura
-    { id: '1', source: require('../../assets/images/iconosbanner/Iconos-APP-MC2025_Deporte.png'), link: '/descubre/armonia_urbana' },
-    { id: '2', source: require('../../assets/images/iconosbanner/Iconos-APP-MC2025_Arte-y-Cultura.png'), link: '/descubre/arte_cultural'  },
-    { id: '3', source: require('../../assets/images/deporte-recreacion.png'), link: '/descubre/deporte_recreacion'  },
-    { id: '4', source: require('../../assets/images/economia-local.png'), link: '/descubre/economia_local'  },
-    { id: '5', source: require('../../assets/images/gastronomia.png'), link: '/descubre/gastronomia' },
-    { id: '6', source: require('../../assets/images/patrimonio.png'), link: '/descubre/patrimonio' },
+    { id: '1', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Armonia-Urbana-2-2.png'), link: '/descubre/armonia_urbana' },
+    { id: '2', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Arte-y-Cultura-2-2.png'), link: '/descubre/arte_cultural' },
+    { id: '3', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Deporte-2-2.png'), link: '/descubre/deporte_recreacion' },
+    { id: '4', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Arte-y-Cultura-2-2.png'), link: '/descubre/economia_local' },
+    { id: '5', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Gastronomia-2-2.png'), link: '/descubre/gastronomia' },
+    { id: '6', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Patrimonio-2-2.png'), link: '/descubre/patrimonio' },
   ];
 
   const secondCarouselImgs = [
@@ -54,50 +177,31 @@ export default function HomeScreen() {
     // { id: '8', source: require('../../assets/events/8.png'), title: 'Semana Santa en San José', subtitle: '13 al 20 de Abril de 2025' },
   ];
 
-  const thirdCarouselImgs: { id: string; source: ImageSourcePropType; title: string }[] = [
-    { id: '1', source: require('../../assets/rutas/1.png'), title: 'Tour san josé histórico' },
-    { id: '2', source: require('../../assets/rutas/2.png'), title: 'Templos parroquiales' },
-    { id: '3', source: require('../../assets/rutas/3.png'), title: 'Tour san josé histórico' },
-    { id: '4', source: require('../../assets/rutas/4.png'), title: 'Tour paseo de los museos' },
-    { id: '5', source: require('../../assets/rutas/5.png'), title: 'El mejor café del mundo ' },
-    { id: '6', source: require('../../assets/rutas/6.png'), title: ' Parques y monumentos' },
+  const thirdCarouselImgs: { id: string; source: ImageSourcePropType; title: string, link: any }[] = [
+    { id: '1', source: require('../../assets/rutas/1.png'), title: 'Tour San José histórico', link: '/rutas' },
+    { id: '2', source: require('../../assets/rutas/2.png'), title: 'Templos parroquiales', link: '/rutas' },
+    { id: '3', source: require('../../assets/rutas/3.png'), title: 'Tour San José histórico', link: '/rutas' },
+    { id: '4', source: require('../../assets/rutas/4.png'), title: 'Tour paseo de los museos', link: '/rutas' },
+    { id: '5', source: require('../../assets/rutas/5.png'), title: 'El mejor café del mundo ', link: '/rutas' },
+    { id: '6', source: require('../../assets/rutas/6.png'), title: 'Parques y monumentos', link: '/rutas' },
   ];
 
-  const fourthCarouselImgs: { id: string; source: ImageSourcePropType }[] = [
-    { id: '1', source: require('../../assets/experiencias/1.png') },
-    { id: '2', source: require('../../assets/experiencias/2.png') },
-    { id: '3', source: require('../../assets/experiencias/3.png') },
-    { id: '4', source: require('../../assets/experiencias/4.png') },
-    { id: '5', source: require('../../assets/experiencias/5.png') },
-    { id: '6', source: require('../../assets/experiencias/6.png') },
-    { id: '7', source: require('../../assets/experiencias/7.png') },
-    { id: '8', source: require('../../assets/experiencias/8.png') },
-    { id: '9', source: require('../../assets/experiencias/9.png') },
-  ];
 
-  const fifthCarouselImgs: { id: string; source: ImageSourcePropType }[] = [
-    { id: '1', source: require('../../assets/info/1.png') },
-    { id: '2', source: require('../../assets/info/2.png') },
-    { id: '3', source: require('../../assets/info/3.png') },
-    { id: '4', source: require('../../assets/info/4.png') },
-    { id: '5', source: require('../../assets/info/5.png') },
-    { id: '6', source: require('../../assets/info/6.png') },
-    { id: '7', source: require('../../assets/info/7.png') },
-  ];
+
 
   const partners = [
-    { id: '1', source: require('../../assets/radar/1.png'), url: 'https://www.google.com/' },
-    { id: '2', source: require('../../assets/radar/2.png'), url: 'https://www.google.com/' },
-    { id: '3', source: require('../../assets/radar/3.png'), url: 'https://www.google.com/' },
-    { id: '4', source: require('../../assets/radar/4.png'), url: 'https://www.google.com/' },
-    { id: '5', source: require('../../assets/radar/5.png'), url: 'https://www.google.com/' },
-    { id: '6', source: require('../../assets/radar/6.png'), url: 'https://www.google.com/' },
-    { id: '7', source: require('../../assets/radar/7.png'), url: 'https://www.google.com/' },
-    { id: '8', source: require('../../assets/radar/8.png'), url: 'https://www.google.com/' },
-    { id: '9', source: require('../../assets/radar/9.png'), url: 'https://www.google.com/' },
-    { id: '10', source: require('../../assets/radar/10.png'), url: 'https://www.google.com/' },
-    { id: '11', source: require('../../assets/radar/11.png'), url: 'https://www.google.com/' },
-    { id: '12', source: require('../../assets/radar/12.png'), url: 'https://www.google.com/' },
+    { id: '1', source: require('../../assets/radar/1.png'), url: 'https://www.gamcultural.com/?lang=es' },
+    { id: '2', source: require('../../assets/radar/2.png'), url: 'https://www.facebook.com/ParqueDiversiones ' },
+    { id: '3', source: require('../../assets/radar/3.png'), url: 'https://www.facebook.com/El.Kubrick/' },
+    { id: '4', source: require('../../assets/radar/4.png'), url: 'https://onecr.com/' },
+    { id: '5', source: require('../../assets/radar/5.png'), url: 'https://puestaenescena.cr/item/arlequin/' },
+    { id: '6', source: require('../../assets/radar/6.png'), url: 'https://www.facebook.com/sinfonicanacionalcr/?locale=es_LA' },
+    { id: '7', source: require('../../assets/radar/7.png'), url: 'https://www.facebook.com/junglebarcr/' },
+    { id: '8', source: require('../../assets/radar/8.png'), url: 'https://www.facebook.com/teatrotorrescr/?locale=es_LA' },
+    { id: '9', source: require('../../assets/radar/9.png'), url: 'https://www.icoder.go.cr/directorio-entidades-deportivas/1015-federaciones-y-asociaciones-de-representacion-nacional ' },
+    { id: '10', source: require('../../assets/radar/10.png'), url: 'https://teatro-lamascara.com/' },
+    { id: '11', source: require('../../assets/radar/11.png'), url: 'https://www.facebook.com/centralpubcr' },
+    { id: '12', source: require('../../assets/radar/12.png'), url: 'https://www.facebook.com/ElObsevatorioBar/' },
   ];
 
   const ciudadCreativaImgs = [
@@ -122,7 +226,7 @@ Proyectos a desarrollar:
 • Desarrollo del Plan Turismo-Diseño-Sostenibilidad.
 • Posicionar a San José como un HUB Creativo y país embajador de la UCCN.
 • Impulsar el desarrollo sostenible de las Industrias Creativas y Culturales mediante mecanismos de reconocimiento, financiamiento, cogestión e intercambio.`,
-  }
+    }
   ];
 
 
@@ -130,18 +234,19 @@ Proyectos a desarrollar:
   const partnersShuffled = useMemo(() => shuffle(partners), []);
 
   return (
+
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
         <Video
           source={require('../../assets/main-video.mp4')}
           style={styles.headerVideo}
-          resizeMode={ResizeMode.CONTAIN} 
+          resizeMode={ResizeMode.CONTAIN}
           isLooping
           shouldPlay
           isMuted
-          // hace que reproduzca en silencio por defecto (autoplay más confiable)
-          // y se vea encima correctamente
+        // hace que reproduzca en silencio por defecto (autoplay más confiable)
+        // y se vea encima correctamente
         />
       }
     >
@@ -219,7 +324,7 @@ Proyectos a desarrollar:
         </View>
 
         <HorizontalImageCarousel
-          data={fourthCarouselImgs}
+          data={data}
           itemWidth={260}
           itemHeight={150}
           gap={24}
@@ -235,7 +340,7 @@ Proyectos a desarrollar:
         </View>
 
         <HorizontalImageCarousel
-          data={fifthCarouselImgs}
+          data={dataInfo}
           itemWidth={260}
           itemHeight={150}
           gap={24}
@@ -255,8 +360,8 @@ Proyectos a desarrollar:
 const styles = StyleSheet.create({
   headerVideo: {
     width: '100%',
-    height: '100%',       
-    borderRadius: 0,  
+    height: '100%',
+    borderRadius: 0,
     backgroundColor: '#FFFFFF',
   },
   container: {

@@ -168,7 +168,7 @@ function CoverCard({
     >
       {/* ÚNICA imagen */}
       <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Image source={image} resizeMode="cover"  style={{ width: '100%', height: '100%' }} />
+        <Image source={image} resizeMode="stretch"  style={{ width: '100%', height: '100%' }} />
       </View>
 
       {/* Título (siempre presente para mantener el layout) */}
