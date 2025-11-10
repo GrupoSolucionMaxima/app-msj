@@ -157,6 +157,14 @@ export default function EventDetailScreen({
   const open = (url?: string) => url && Linking.openURL(url).catch(() => null);
 
   // Resolver imágenes locales
+  /*const cleaner = () => {
+    if (typeof bannerImage === 'string') { return JSON.parse(bannerImage) }
+    return ["null"];
+  };
+  const hola = cleaner();
+*/
+  const imagen = { "uri": String(bannerImage) };
+  console.log("Esta es mi imgan slslslslslls: ", bannerImage)
   const bannerSrc = useMemo(() => localSrc(bannerImage, "banner-default"), [bannerImage]);
   const mapIconSrc = useMemo(() => localSrc(mapIconImage, "map-icon"), [mapIconImage]);
 
@@ -186,7 +194,7 @@ export default function EventDetailScreen({
       scrollIndicatorInsets={{ right: 1 }}
     >
       {/* Banner */}
-      <ImageBackground source={bannerSrc} style={[styles.banner, { height: bannerHeight }]}>
+      <ImageBackground source={imagen} style={[styles.banner, { height: bannerHeight }]}>
         {bannerOverlay ? <View style={styles.bannerOverlay} /> : null}
       </ImageBackground>
 

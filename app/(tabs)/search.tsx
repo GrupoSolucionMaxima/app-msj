@@ -1,4 +1,5 @@
 // app/(tabs)/search.tsx
+import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
   Image,
@@ -16,10 +17,12 @@ export default function SearchScreen() {
   const [q, setQ] = useState('');
   const inputRef = useRef<TextInput>(null);
   const canSearch = q.trim().length > 0;
-
+  const router = useRouter();
   const handleSearch = () => {
     if (!canSearch) return;
     console.log('Buscar:', q.trim());
+     const query = encodeURIComponent(q.trim());
+    router.push(`/(tabs)/descubre?query=${query}`);
     // Ej: router.push(`/(tabs)/descubre?query=${encodeURIComponent(q.trim())}`);
   };
 

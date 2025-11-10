@@ -1,6 +1,6 @@
 // app/(tabs)/TabTwoScreen.tsx
-import { useRouter,usePathname } from 'expo-router';
-import React, { useState,useEffect } from 'react';
+import { useRouter, usePathname } from 'expo-router';
+import React, { useState, useEffect } from 'react';
 import CoverflowCarousel, { CoverItem } from '@/components/carousels/CoverflowCarousel';
 import {
   Image,
@@ -37,6 +37,7 @@ export interface ContentItem {
   status: "queue" | "finished";
   notes: string;
   categoryColor?: string;
+  address?: string;
 }
 
 type ImageFromApi = {
@@ -62,6 +63,7 @@ type ArticleFromApi = {
   stops?: string;
   difficulty?: string;
   event_time?: string;
+  address?: string;
 };
 
 type HomeContentItem = ContentItem & Partial<ArticleFromApi>;
@@ -116,49 +118,26 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     stops: a.stops,
     difficulty: a.difficulty,
     event_time: a.event_time,
-    categoryColor: categoryColor
+    categoryColor: categoryColor,
+    address:a.address,
   };
 };
 
-const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
-  const DEFAULT_LAT = '9.9327';
-  const DEFAULT_LNG = '-84.0796';
 
-  let lat = DEFAULT_LAT;
-  let lng = DEFAULT_LNG;
-  let indications = item.location || '';
 
-  if (item.location) {
-    const parts = item.location.split(',');
-    if (parts.length >= 2) {
-      lat = parts[0].trim();
-      lng = parts[1].trim();
-      indications = item.location;
-    }
-  }
-
-  const imageSource = item.image_url
-    ? { uri: item.image_url }
-    : require('../../assets/descubre/armonia-urbana/parque-nacional.png');
+const mapApiDataToEventList = (art: HomeContentItem): EventListItem => {
 
   return {
-    id: item.id,
-    image: imageSource as any,
-    title: item.title,
-    link: {
-      pathname: '/info/[id]',
-      params: {
-        id: item.id,
-        title: item.title,
-        lat: lat,
-        lng: lng,
-        imgMain: JSON.stringify([item.image_url]),
-        indications: indications,
-        description: item.description || item.notes || 'Sin descripción.',
-      }
-    },
+    id: String(art.id),
+    image: { uri: art.image_url },
+    title: art.title,
+    dateText: "todo el mes",
+    description: art.description,
+    venueName: art.address,
+    bannerKey:art.image_url,
+
   };
-};
+}
 export default function TabTwoScreen() {
   const [q, setQ] = useState('');
 
@@ -166,13 +145,13 @@ export default function TabTwoScreen() {
   const pathname = usePathname();
 
   // 1. ESTADO PARA LOS DATOS DINÁMICOS
-  const [data, setData] = useState<CoverItem[]>([]);
+  const [data, setData] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
 
   // 2. FUNCIÓN DE FETCH DE DATOS
   useEffect(() => {
-    const fetchEconomiaLocal = async () => {
+    const fetchEventos = async () => {
       setLoading(true);
       setError('');
       try {
@@ -190,31 +169,31 @@ export default function TabTwoScreen() {
         }
 
         const json = await res.json();
-
         if (!json || json.ok !== true || !Array.isArray(json.data)) {
           throw new Error("Respuesta inesperada del servidor");
         }
-    
+
+
         const mappedArticles = json.data.map(mapArticleForHome) as HomeContentItem[];
 
-        // 3. FILTRAR POR "Armonía Urbana"
+        // 3. FILTRAR POR "Eventos"
         const filteredData = mappedArticles
           .filter(item =>
             item.category.toLowerCase().includes("eventos")
           )
-          .map(mapApiDataToCoverItem);
-
+          .map(mapApiDataToEventList);
+        // console.log("estos son los datos extraidos: ", filteredData)
         setData(filteredData);
 
       } catch (e: any) {
+
         console.error("Fetch Error en eventos:", e);
         setError("Error al cargar el contenido. Intente de nuevo.");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchEconomiaLocal();
+    fetchEventos();
   }, []);
   const onPressItem = (item: EventListItem) => {
     router.push({
@@ -233,8 +212,8 @@ export default function TabTwoScreen() {
     });
   };
 
-  const agenda: EventListItem[] = [
-    {
+  const agenda: EventListItem[] = data; /* [
+  {
       id: '2',
       image: require('../../assets/events/article-1.png'),
       title: 'Biblioteca Rafael Arias Gomez',
@@ -256,7 +235,7 @@ export default function TabTwoScreen() {
       bannerKey: 'art-2',
       description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
-  ];
+  ];*/
 
   const proximos: EventListItem[] = [
     {
@@ -265,6 +244,7 @@ export default function TabTwoScreen() {
       title: 'Feria de Productores',
       dateText: '2 de Mayo',
       bannerKey: 'banner-default',
+      description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
   ];
 
@@ -275,6 +255,7 @@ export default function TabTwoScreen() {
       title: 'Festival Cultural',
       dateText: 'Marzo',
       bannerKey: 'banner-default',
+      description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
   ];
 
@@ -283,7 +264,7 @@ export default function TabTwoScreen() {
       source={require('../../assets/images/bg_eventos.png')} // 👈 cambia a tu imagen de fondo
       style={styles.bg}
       imageStyle={styles.bgImage}
-      // blurRadius={2} // opcional: desenfoque
+    // blurRadius={2} // opcional: desenfoque
     >
       {/* Overlay para mejorar contraste del contenido sobre el fondo */}
       <View style={styles.overlay}>
@@ -316,7 +297,7 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.06)', 
+    backgroundColor: 'rgba(0,0,0,0.06)',
   },
 
   headerImage: {
