@@ -35,39 +35,39 @@ type CoverItem = {
 const DATA: CoverItem[] = [
   {
     id: 'parque_nacional',
-    image: require('../../assets/tours/tour_1.png'),
+    image: require('../../assets/rutas/parque-nacional.jpg'),
     video: { uri: 'curOmw2cqp8' },
     title: 'Parque Nacional',
   },
   {
-    id: 'templos_parroquiales',
-    image: require('../../assets/tours/templos_parroquiales.png'),
-    video: { uri: 'mnHCCqMGEgk' },
-    title: 'Templos Parroquiales',
+    id: 'memoria_nacional',
+    image: require('../../assets/rutas/Memoria-Nacional.jpg'),
+    video: { uri: 'hRhU5NqSVcI' },
+    title: 'Memoria Nacional',
   },
   {
-    id: 'tour_san_jose_historico',
-    image: require('../../assets/tours/tour_san_jose_historico.png'),
+    id: 'huellas_centro_historico',
+    image: require('../../assets/rutas/Huellas-del-Centro-Historico.jpg'),
     video: { uri: 'K9lVXhKku5A' },
-    title: 'Tour San José Histórico',
+    title: 'Huellas del centro histórico',
   },
   {
     id: 'tour_paseo_de_los_museos',
-    image: require('../../assets/tours/tour_paseo_de_los_museos.png'),
+    image: require('../../assets/rutas/Entre-muros-y-memorias.jpg'),
     video: { uri: 'mnHCCqMGEgk' },
-    title: 'Tour Paseo de los Museos',
+    title: 'Entre muros y memorias',
   },
   {
-    id: '_el_mejor_cafe_del_mundo',
-    image: require('../../assets/tours/_el_mejor_cafe_del_mundo.png'),
+    id: 'ecos_urbanos',
+    image: require('../../assets/rutas/Ecos-Urbanos.jpg'),
+    video: { uri: 'VXTIYQS9rVo' },
+    title: 'Ecos urbanos',
+  },
+  {
+    id: 'campanas_de_sanjose',
+    image: require('../../assets/rutas/campanas-de-san-jose.jpg'),
     video: { uri: 'curOmw2cqp8' },
-    title: 'El Mejor Café del Mundo',
-  },
-  {
-    id: 'parques_y_monumentos',
-    image: require('../../assets/tours/parques_y_monumentos.png'),
-    video: { uri: 'mnHCCqMGEgk' },
-    title: 'Parques y Monumentos',
+    title: 'Campanas de San José',
   },
 ];
 
@@ -113,7 +113,7 @@ export default function RutasScreen() {
     return typeof current.video === 'number'
       ? current.video
       : current.video.uri
-        ? current.video.uri 
+        ? current.video.uri
         : undefined;
   }, [current]);
 
@@ -134,7 +134,7 @@ export default function RutasScreen() {
               style={styles.image}
               resizeMode="cover"
             />
-            <Text style={styles.subtitle}>Tours</Text>
+            <Text style={styles.subtitle}>Rutas</Text>
           </View>
 
           <StatusBar barStyle="dark-content" />
@@ -149,10 +149,12 @@ export default function RutasScreen() {
                 <ItemCard
                   item={item}
                   index={index}
+
                   x={x}
                   itemSize={ITEM_SIZE}
                   cardWidth={CARD_WIDTH}
                   cardHeight={CARD_HEIGHT}
+
                   onPress={() => openVideo(item)}
                 />
               )}
@@ -184,14 +186,14 @@ export default function RutasScreen() {
 
             <View style={styles.videoWrap}>
               {true ? (
-              
-                  <YoutubePlayer
-                    height={200}
-                    width={300}
-                    play={true}
-                    videoId={videoSource} // Reemplaza con el ID de tu video
-                  />
-        
+
+                <YoutubePlayer
+                  height={200}
+                  width={300}
+                  play={true}
+                  videoId={videoSource} // Reemplaza con el ID de tu video
+                />
+
 
               ) : (
                 <Text style={styles.noVideo}>No hay video disponible</Text>
@@ -259,13 +261,13 @@ function ItemCard({
             <Image source={item.image} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
           </View>
 
-          {/* {item.title ? (
+          {item.title ? (
             <View style={styles.centerLabel}>
               <Text style={styles.title} numberOfLines={2}>
                 {item.title}
               </Text>
             </View>
-          ) : null} */}
+          ) : null}
         </Animated.View>
       </Pressable>
     </View>

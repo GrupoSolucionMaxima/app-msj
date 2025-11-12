@@ -79,7 +79,6 @@ export default function SettingsScreen() {
     { id: 'e', title: t.routes, route: '/(tabs)/rutas', icon: require('../../assets/icons_menu/rutas.png') },
     { id: 'f', title: t.experiences, route: '/(tabs)/experiencias', icon: require('../../assets/icons_menu/experiencia-2.png') },
     { id: 'g', title: t.travelerInfo, route: '/(tabs)/info', icon: require('../../assets/icons_menu/info.png') },
-    { id: 'h', title: t.services, route: '/services', icon: require('../../assets/icons_menu/rutas.png') },
     // Separador visual lo puedes dejar con marginTop antes del destructivo
     { id: 'z', title: t.logout, isDestructive: true, onPress: handleLogout },
   ];

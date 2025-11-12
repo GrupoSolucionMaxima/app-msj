@@ -26,6 +26,7 @@ export type CoverItem = {
   image: ImageSourcePropType;
   title?: string; // Título opcional
   link?: string | { pathname: string; params?: Record<string, string> };
+  imagenes?: string[]
 };
 
 type Props = {
@@ -51,7 +52,7 @@ export default function CoverflowCarousel({
   const router = useRouter();
   const { width, height } = useWindowDimensions();
 
-  const CARD_WIDTH  = cardWidth  ?? Math.round(width * 0.85);
+  const CARD_WIDTH = cardWidth ?? Math.round(width * 0.85);
   const CARD_HEIGHT = cardHeight ?? Math.round(height * 0.65);
 
   const SPACING = 12;
@@ -73,10 +74,23 @@ export default function CoverflowCarousel({
 
   const renderItem = ({ item, index }: { item: CoverItem; index: number }) => {
     const handlePress = () => {
+      console.log("Pasaron imagenes: ", item.imagenes)
+      const imagenesValidaciones = () => {
+        if (item.imagenes && item.imagenes?.length > 1) {
+          return item.imagenes;
+        }
+        else {
+          return ["por defecto"]
+        }
+      }
+      //let data: string = imagenesValidaciones;
       if (onPressItem) return onPressItem(item, index);
       if (!item.link) return;
-      if (typeof item.link === 'string') router.push(item.link as any);
-      else router.push({ pathname: item.link.pathname, params: item.link.params as any });
+      if (typeof item.link === 'string') router.push(item.link as any, item.imagenes as any);
+      else router.push({ pathname: item.link.pathname, params: {
+        ...item.link.params,
+        imagenes: JSON.stringify(item.imagenes),
+      }, });
     };
 
     return (
@@ -168,13 +182,13 @@ function CoverCard({
     >
       {/* ÚNICA imagen */}
       <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Image source={image} resizeMode="stretch"  style={{ width: '100%', height: '100%' }} />
+        <Image source={image} resizeMode="stretch" style={{ width: '100%', height: '100%' }} />
       </View>
 
       {/* Título (siempre presente para mantener el layout) */}
       {/* 🚨 MODIFICACIÓN: Usa title ?? '' para asegurar que se renderice el contenedor, incluso si el título es undefined. */}
       <View style={styles.centerLabel}>
-          <Text style={styles.title} numberOfLines={2}>{title ?? ''}</Text> 
+        <Text style={styles.title} numberOfLines={2}>{title ?? ''}</Text>
       </View>
     </Animated.View>
   );
@@ -183,9 +197,9 @@ function CoverCard({
 /** Estilos */
 const styles = StyleSheet.create({
   card: {
-     overflow: 'hidden',     
+    overflow: 'hidden',
     alignSelf: 'center',
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
   },
   centerLabel: {
     position: 'absolute',

@@ -30,6 +30,7 @@ type ArticleFromApi = {
   created_at: string | null;
   status?: "queue" | "finished";
   images?: ImageFromApi[];
+  location_url?: string
   image_url?: string;
   description?: string;
   location?: string;
@@ -60,8 +61,13 @@ const computeStatus = (publishDate: string, incoming?: "queue" | "finished"): "q
 const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
   const publishDate = formatDate(a.publish_date);
   const uploadDate = formatDate(a.created_at);
-
+  let imagenes = [];  //diplomado  //bachelor 8 esp //lic  //Mastr //pods
   let imageUrl = '';
+  if (a.images?.length) {
+    a.images?.forEach(element => {
+      imagenes.push(element.path)
+    });
+  }
 
   if (a.images && a.images.length > 0 && a.images[0].path) {
     const imagePath = a.images[0].path;
@@ -82,9 +88,8 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     publishDate,
     uploadDate,
     status: computeStatus(publishDate, a.status),
-
     image_url: imageUrl,
-
+    images: a.images,
     description: a.description,
     location: a.location,
     duration: a.duration,
@@ -102,7 +107,13 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   let lat = DEFAULT_LAT;
   let lng = DEFAULT_LNG;
   let indications = item.location || '';
+  let imagenes: string[] = [];
 
+  if (item.images?.length) {
+    item.images?.forEach(element => {
+      imagenes.push(element.path)
+    });
+  }
   if (item.location) {
     const parts = item.location.split(',');
     if (parts.length >= 2) {
@@ -119,7 +130,7 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   return {
     id: item.id,
     image: imageSource as any,
-    title:item.title,
+    title: item.title,
     link: {
       pathname: './[id]',
       params: {
@@ -132,6 +143,7 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
         description: item.description || item.notes || 'Sin descripción.',
       }
     },
+    imagenes: imagenes,
   };
 };
 
@@ -170,7 +182,9 @@ export default function ArmoniaUrbana() {
         if (!json || json.ok !== true || !Array.isArray(json.data)) {
           throw new Error("Respuesta inesperada del servidor");
         }
-
+        if (json.ok) {
+          console.log("estos son los datos: ", json.data)
+        }
         const mappedArticles = json.data.map(mapArticleForHome) as HomeContentItem[];
 
         // 3. FILTRAR POR "Armonía Urbana"
@@ -230,7 +244,7 @@ export default function ArmoniaUrbana() {
         </View>
       );
     }
-    console.log("Estos datos: ", data[0])
+    // console.log("Estos datos: ", data[0])
     return <CoverflowCarousel data={data} />;
   }
 

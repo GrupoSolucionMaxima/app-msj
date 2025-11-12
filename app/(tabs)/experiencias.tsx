@@ -85,7 +85,7 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
   }
 
   const categoryColor = a.category.toLowerCase().includes("experiencia") ? 'bg-[#EE3048]' : 'bg-primary';
-  console.log("estas son notasss", a.notes)
+
   return {
     id: String(a.id),
     title: "",
