@@ -149,7 +149,7 @@ export default function HomeScreen() {
     { id: '1', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Armonia-Urbana-2-2.png'), link: '/descubre/armonia_urbana' },
     { id: '2', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Arte-y-Cultura-2-2.png'), link: '/descubre/arte_cultural' },
     { id: '3', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Deporte-2-2.png'), link: '/descubre/deporte_recreacion' },
-    { id: '4', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Arte-y-Cultura-2-2.png'), link: '/descubre/economia_local' },
+    { id: '4', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Economia-Local-2-2.png'), link: '/descubre/economia_local' },
     { id: '5', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Gastronomia-2-2.png'), link: '/descubre/gastronomia' },
     { id: '6', source: require('../../assets/images/bannerexperiencias/Iconos-APP-MC2025_Patrimonio-2-2.png'), link: '/descubre/patrimonio' },
   ];
@@ -178,12 +178,12 @@ export default function HomeScreen() {
   ];
 
   const thirdCarouselImgs: { id: string; source: ImageSourcePropType; title: string, link: any }[] = [
-    { id: '1', source: require('../../assets/rutas/1.png'), title: 'Tour San José histórico', link: '/rutas' },
-    { id: '2', source: require('../../assets/rutas/2.png'), title: 'Templos parroquiales', link: '/rutas' },
-    { id: '3', source: require('../../assets/rutas/3.png'), title: 'Tour San José histórico', link: '/rutas' },
-    { id: '4', source: require('../../assets/rutas/4.png'), title: 'Tour paseo de los museos', link: '/rutas' },
-    { id: '5', source: require('../../assets/rutas/5.png'), title: 'El mejor café del mundo ', link: '/rutas' },
-    { id: '6', source: require('../../assets/rutas/6.png'), title: 'Parques y monumentos', link: '/rutas' },
+    { id: '1', source: require('../../assets/rutas/parque-nacional-INICIO-2.jpg'), title: 'Parque nacionales', link: '/rutas' },
+    { id: '2', source: require('../../assets/rutas/Memoria-Nacional-INICIO.jpg'), title: 'Memoria Nacional', link: '/rutas' },
+    { id: '3', source: require('../../assets/rutas/Huellas-del-Centro-Historico-INICIO.jpg'), title: 'Huellas del centro historíco', link: '/rutas' },
+    { id: '4', source: require('../../assets/rutas/Entre-muros-y-memorias-INICIO.jpg'), title: 'Entre muros y memorias', link: '/rutas' },
+    { id: '5', source: require('../../assets/rutas/Ecos-Urbanos-INICIO.jpg'), title: 'Ecos urbanos ', link: '/rutas' },
+    { id: '6', source: require('../../assets/rutas/campanas-de-san-jose-INICIO.jpg'), title: 'Campanas de San José', link: '/rutas' },
   ];
 
 

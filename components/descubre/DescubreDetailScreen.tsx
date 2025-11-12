@@ -16,10 +16,10 @@ import {
 import LeafletMap from "../LeafletMap";
 
 // ==== Configuración de la API (Necesario) ====
-const API_BASE = "https://msj.gruponbf-testlab.com"; 
+const API_BASE = "https://msj.gruponbf-testlab.com";
 
 type Props = {
-title?: string;
+  title?: string;
   monthTag?: string;
   venueName?: string;
   description?: string;
@@ -32,6 +32,7 @@ title?: string;
   coords: { lat: number; lng: number };
   imgMain?: string | string[];
   indications?: string;
+  imagenes?: [];
 };
 
 type LocalImagesMap = {
@@ -244,12 +245,12 @@ function getSourceFromKeyOrUrl(keyOrUrl?: string) {
   }
 
   // 2. CHECK DE RUTA PARCIAL DEL BACKEND (e.g. "articles/1/image.png")
-  if (keyOrUrl.includes('/')) { 
-      const fullUrl = `${API_BASE}/storage/${keyOrUrl}`;
-      if (__DEV__) {
-          console.log(`[EventDetailScreen] Usando URL remota: ${fullUrl}`);
-      }
-      return { uri: fullUrl };
+  if (keyOrUrl.includes('/')) {
+    const fullUrl = `${API_BASE}/storage/${keyOrUrl}`;
+    if (__DEV__) {
+      console.log(`[EventDetailScreen] Usando URL remota: ${fullUrl}`);
+    }
+    return { uri: fullUrl };
   }
 
 
@@ -257,7 +258,7 @@ function getSourceFromKeyOrUrl(keyOrUrl?: string) {
   if ((keyOrUrl as LocalImageKey) in LOCAL_IMAGES) {
     return LOCAL_IMAGES[keyOrUrl as LocalImageKey];
   }
-  
+
   if (__DEV__) {
     // Si la clave no es reconocida, y no es una URL, emitimos la advertencia.
     console.warn(`[EventDetailScreen] Clave/URL desconocida: "${keyOrUrl}". Usando fallback local.`);
@@ -273,8 +274,9 @@ export default function EventDetailScreen({
   coords = { lat: 9.91093, lng: -84.04611 },
   imgMain = "",
   indications = "",
+  imagenes=[],
 }: Props) {
-  
+
   // ==========================================
   // === LOGICA DE PARSEO DE IMAGEN (FIJA) ===
   // ==========================================
@@ -282,25 +284,26 @@ export default function EventDetailScreen({
     if (!imgMain) return []; // Retorna array vacío si no hay prop
 
     if (typeof imgMain === 'string' && imgMain.startsWith('[')) {
-        try {
-            const parsed = JSON.parse(imgMain);
-            
-            if (Array.isArray(parsed)) {
-                // Filtramos elementos no string y devolvemos. Si el array es [], devuelve []
-                return parsed.filter(i => typeof i === 'string' && i.length > 0);
-            }
-        } catch (e: any) {
-            // Si el parseo JSON falla (ej: "[ ]" no es válido), retornamos un array vacío.
-            console.warn("[EventDetailScreen] Error al intentar parsear JSON de imagen: " + e.message);
-            return []; 
+      try {
+        const parsed = JSON.parse(imgMain);
+
+        if (Array.isArray(parsed)) {
+          // Filtramos elementos no string y devolvemos. Si el array es [], devuelve []
+          return parsed.filter(i => typeof i === 'string' && i.length > 0);
         }
+      } catch (e: any) {
+        // Si el parseo JSON falla (ej: "[ ]" no es válido), retornamos un array vacío.
+        console.warn("[EventDetailScreen] Error al intentar parsear JSON de imagen: " + e.message);
+        return [];
+      }
     }
     // Si es una string (que no es un JSON array) o un array normal, lo devolvemos
     return Array.isArray(imgMain) ? imgMain : [imgMain];
   }, [imgMain]);
-  
+
   // Array final de imágenes: Si 'images' es vacío, añadimos el fallback local.
-  const finalImages = images.length === 0 ? ["parque-nacional"] : images;
+  const finalImages = imagenes.length === 0 ? ["parque-nacional"] : imagenes;
+  console.log("Estas imagenes: ", imagenes)
 
 
   const hasIndications = typeof indications === "string" && indications.trim().length > 0;

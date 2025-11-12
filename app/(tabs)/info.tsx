@@ -69,7 +69,13 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
   const publishDate = formatDate(a.publish_date);
   const uploadDate = formatDate(a.created_at);
 
+  let imagenes = [];
   let imageUrl = '';
+  if (a.images?.length) {
+    a.images?.forEach(element => {
+      imagenes.push(element.path)
+    });
+  }
 
   if (a.images && a.images.length > 0 && a.images[0].path) {
     const imagePath = a.images[0].path;
@@ -92,7 +98,7 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     status: computeStatus(publishDate, a.status),
 
     image_url: imageUrl,
-
+    images: a.images,
     description: a.description,
     location: a.location,
     duration: a.duration,
@@ -111,6 +117,13 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   let lng = DEFAULT_LNG;
   let indications = item.location || '';
 
+  let imagenes: string[] = [];
+
+  if (item.images?.length) {
+    item.images?.forEach(element => {
+      imagenes.push(element.path)
+    });
+  }
   if (item.location) {
     const parts = item.location.split(',');
     if (parts.length >= 2) {
@@ -140,6 +153,7 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
         description: item.description || item.notes || 'Sin descripción.',
       }
     },
+    imagenes: imagenes,
   };
 };
 
