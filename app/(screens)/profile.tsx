@@ -180,22 +180,22 @@ export default function ProfileScreen() {
         <Text style={styles.nameText}>{name || 'Nombre'}</Text>
         <Text style={styles.locationText}>{prettyLocation}</Text>
 
-        {/* ------------------------ EVENTOS FAVORITOS ------------------------- */}
-        <View style={styles.containerText}>
+
+        {/* <View style={styles.containerText}>
           <Text style={styles.subtitle}>Eventos favoritos</Text>
         </View>
         <View>
           <HorizontalGradientCarousel data={secondCarouselImgs} cardWidth={260} cardHeight={150} />
         </View>
 
-        {/* ------------------------ RUTAS DE INTERÉS ------------------------- */}
+     
         <View style={styles.containerText2}>
           <Text style={styles.subtitle}>Rutas de interés</Text>
         </View>
         <View>
           <HorizontalGradientCarousel data={secondCarouselImgs} cardWidth={260} cardHeight={150} />
-        </View>
-
+        </View>------------------------ EVENTOS FAVORITOS ------------------------- */}
+        
         <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>

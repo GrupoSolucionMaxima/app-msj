@@ -274,7 +274,7 @@ export default function EventDetailScreen({
   coords = { lat: 9.91093, lng: -84.04611 },
   imgMain = "",
   indications = "",
-  imagenes=[],
+  imagenes = [],
 }: Props) {
 
   // ==========================================
@@ -334,104 +334,106 @@ export default function EventDetailScreen({
   const scrollRef = useRef<ScrollView>(null);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Back arrow */}
-      <View style={styles.containerArrow}>
-        <Pressable
-          onPress={() => handleBack("/(tabs)/home")}
-          hitSlop={12}
-          android_ripple={{ color: "rgba(0,0,0,0.08)", borderless: false }}
-          accessibilityRole="button"
-          accessibilityLabel="Volver"
-        >
-          <Image
-            source={require("../../assets/images/left_arrow.png")}
-            style={styles.imageArrow}
-            resizeMode="cover"
-          />
-        </Pressable>
-      </View>
-
-      {/* Título */}
-      <View style={styles.containerText2}>
-        <Image
-          source={require("../../assets/images/map.png")}
-          style={styles.image2}
-          resizeMode="cover"
-        />
-        <Text style={styles.subtitle}>{title}</Text>
-      </View>
-
-      {/* Banner: 1 imagen -> ImageBackground; 2+ -> carrusel con puntitos */}
-      {/* Siempre usamos finalImages para asegurar que haya al menos una imagen (la de fallback) */}
-      {finalImages.length <= 1 ? (
-        <ImageBackground source={getSourceFromKeyOrUrl(finalImages[0])} style={styles.banner} />
-      ) : (
-        <View>
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
-            snapToAlignment="center"
-            decelerationRate="fast"
-            style={{ width }}
+   
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Back arrow */}
+        <View style={styles.containerArrow}>
+          <Pressable
+            onPress={() => handleBack("/(tabs)/home")}
+            hitSlop={12}
+            android_ripple={{ color: "rgba(0,0,0,0.08)", borderless: false }}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
           >
-            {finalImages.map((img, idx) => (
-              <ImageBackground
-                key={`${img}-${idx}`}
-                source={getSourceFromKeyOrUrl(img)}
-                style={[styles.banner, { width }]}
-              />
-            ))}
-          </ScrollView>
-
-          {/* Puntos (indicator) */}
-          <View style={styles.dotsWrap}>
-            {finalImages.map((_, i) => (
-              <View key={i} style={[styles.dot, i === activeIndex && styles.dotActive]} />
-            ))}
-          </View>
-        </View>
-      )}
-
-      {/* Indicaciones */}
-      {hasIndications && (
-        <View style={styles.block}>
-          <View style={styles.containerText}>
             <Image
-              source={require("../../assets/images/outline-map.png")}
-              style={styles.indicationsImg}
+              source={require("../../assets/images/left_arrow.png")}
+              style={styles.imageArrow}
               resizeMode="cover"
             />
-            <Text style={styles.indicationsText}>{indications}</Text>
+          </Pressable>
+        </View>
+
+        {/* Título */}
+        <View style={styles.containerText2}>
+          <Image
+            source={require("../../assets/images/map.png")}
+            style={styles.image2}
+            resizeMode="cover"
+          />
+          <Text style={styles.subtitle}>{title}</Text>
+        </View>
+
+        {/* Banner: 1 imagen -> ImageBackground; 2+ -> carrusel con puntitos */}
+        {/* Siempre usamos finalImages para asegurar que haya al menos una imagen (la de fallback) */}
+        {finalImages.length <= 1 ? (
+          <ImageBackground source={getSourceFromKeyOrUrl(finalImages[0])} style={styles.banner} />
+        ) : (
+          <View>
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={onScroll}
+              scrollEventThrottle={16}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              style={{ width }}
+            >
+              {finalImages.map((img, idx) => (
+                <ImageBackground
+                  key={`${img}-${idx}`}
+                  source={getSourceFromKeyOrUrl(img)}
+                  style={[styles.banner, { width }]}
+                />
+              ))}
+            </ScrollView>
+
+            {/* Puntos (indicator) */}
+            <View style={styles.dotsWrap}>
+              {finalImages.map((_, i) => (
+                <View key={i} style={[styles.dot, i === activeIndex && styles.dotActive]} />
+              ))}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {/* Acerca de */}
-      <View style={styles.mapBlock}>
-        <View style={styles.containerText3}>
-          <Text style={styles.subtitle}>Acerca de</Text>
-        </View>
-        <Text style={styles.descLine}>{description}</Text>
-      </View>
+        {/* Indicaciones */}
+        {hasIndications && (
+          <View style={styles.block}>
+            <View style={styles.containerText}>
+              <Image
+                source={require("../../assets/images/outline-map.png")}
+                style={styles.indicationsImg}
+                resizeMode="cover"
+              />
+              <Text style={styles.indicationsText}>{indications}</Text>
+            </View>
+          </View>
+        )}
 
-      {/* ¿Cómo llegar? */}
-      <View style={styles.mapBlock}>
-        <View style={styles.containerText}>
-          <Text style={styles.subtitle}>¿Cómo llegar?</Text>
+        {/* Acerca de */}
+        <View style={styles.mapBlock}>
+          <View style={styles.containerText3}>
+            <Text style={styles.subtitle}>Acerca de</Text>
+          </View>
+          <Text style={styles.descLine}>{description}</Text>
         </View>
-        <LeafletMap
-          lat={coords.lat ?? 9.9327}
-          lng={coords.lng ?? -84.0796}
-          zoom={15}
-          markerTitle={title || "Ubicación"}
-        />
-      </View>
-    </ScrollView>
+
+        {/* ¿Cómo llegar? */}
+       <View style={styles.mapBlock}>
+          <View style={styles.containerText}>
+            <Text style={styles.subtitle}>¿Cómo llegar?</Text>
+          </View>
+          <LeafletMap
+            lat={coords.lat ?? 9.9327}
+            lng={coords.lng ?? -84.0796}
+            zoom={15}
+            markerTitle={title || "Ubicación"}
+          />
+        </View> 
+      </ScrollView>
+ 
   );
 }
 
@@ -509,7 +511,7 @@ const styles = StyleSheet.create({
   iconBtn: { height: 24, width: 24, alignItems: "center", justifyContent: "center" },
   iconImg: { width: 24, height: 24, resizeMode: "contain" },
 
-  mapBlock: { marginTop: 16, paddingHorizontal: 12, gap: 10 },
+  mapBlock: { marginTop: 16, paddingHorizontal: 12, gap: 10, },
   block: { marginTop: 16, paddingHorizontal: 12 },
   mapTitle: { color: "#000", fontWeight: "800", letterSpacing: 0.3 },
 

@@ -1,6 +1,7 @@
 import CoverflowCarousel, { CoverItem } from '@/components/carousels/CoverflowCarousel';
 import { usePathname, useRouter } from 'expo-router';
 import React, { useCallback, useState, useEffect } from 'react';
+import { extractCoordinates } from '@/utils/FoundFindParamaters';
 import { Image, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 
@@ -139,6 +140,7 @@ type ArticleFromApi = {
   image_url?: string;
   description?: string;
   location?: string;
+  location_url?: string;
   duration?: string;
   stops?: string;
   difficulty?: string;
@@ -199,6 +201,7 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     images: a.images,
     description: a.description,
     location: a.location,
+    location_url: a.location_url,
     duration: a.duration,
     stops: a.stops,
     difficulty: a.difficulty,
@@ -220,6 +223,13 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
     item.images?.forEach(element => {
       imagenes.push(element.path)
     });
+  }
+  if (item.location_url) {
+    let result = extractCoordinates(item.location_url)
+    if (result.length > 1) {
+      lat = result[0];
+      lng = result[1];
+    }
   }
   if (item.location) {
     const parts = item.location.split(',');
@@ -349,7 +359,6 @@ export default function ArteCultural() {
         </View>
       );
     }
-    console.log("Estos datos: ", data[0])
     return <CoverflowCarousel data={data} />;
   }
   return (

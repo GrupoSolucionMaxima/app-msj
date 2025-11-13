@@ -20,12 +20,17 @@ const LOCAL = {
     "banner-default": require("../../assets/events/article-1.png"),
     "parque-nacional": require("../../assets/images/parque-nacional.png"),
     "art-2": require("../../assets/events/art_2.jpg"),
-
+    "sanjose-encantado": require("../../assets/experiencias/Investigacion-Paranormal-2.png"),
+    "sanjose-striders": require("../../assets/experiencias/citystriders-2.png"),
+    "imaginando-espacios": require("../../assets/experiencias/Recurso-3-2.png"),
+    "lacompania": require("../../assets/experiencias/La-Compania-2.png"),
     "ciudad-creativa": require("../../assets/images/main_ciudad_creativa.png"),
+    "vip-city": require("../../assets/experiencias/vip-city-bus-logo.png"),
+    "sanjose-pie": require("../../assets/experiencias/San-jose-a-pie-2.png"),
+    "chepetown": require("../../assets/experiencias/cHEPETOWN-2.png"),
+    "sanjosefree-walking": require("../../assets/experiencias/san-jose-walking-2.png"),
     "terminal-buses": require("../../assets/info/hilo_urbano_art_bg_1.png"),
-
     "chepecletas-logo": require("../../assets/experiencias/chepecletas_logo.png"),
-
     // mapa
     "map-icon": require("../../assets/map-ta.png"),
 
@@ -166,7 +171,8 @@ export default function ExperiencDetailScreen({
         if (typeof bannerImage === 'string') { return JSON.parse(bannerImage) }
         return ["null"];
     };
-    const hola=cleaner();
+    const hola = cleaner();
+
     const imagen = { "uri": hola[0] };
     const mapIconSrc = useMemo(() => localSrc(mapIconImage, "map-icon"), [mapIconImage]);
 

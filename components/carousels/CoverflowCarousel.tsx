@@ -1,6 +1,7 @@
 // components/carousels/CoverflowCarousel.tsx
 import { useRouter } from 'expo-router';
 import React, { useMemo, useRef } from 'react';
+import { ImageResizeMode } from 'react-native';
 import {
   Image,
   ImageSourcePropType,
@@ -26,7 +27,8 @@ export type CoverItem = {
   image: ImageSourcePropType;
   title?: string; // Título opcional
   link?: string | { pathname: string; params?: Record<string, string> };
-  imagenes?: string[]
+  imagenes?: string[],
+  tipoCarrusel?: string
 };
 
 type Props = {
@@ -50,6 +52,7 @@ export default function CoverflowCarousel({
   onPressItem,
 }: Props) {
   const router = useRouter();
+  const tipoCarrusel = data[0].tipoCarrusel === "experiencias" ? "stretch" : "cover";
   const { width, height } = useWindowDimensions();
 
   const CARD_WIDTH = cardWidth ?? Math.round(width * 0.85);
@@ -74,7 +77,6 @@ export default function CoverflowCarousel({
 
   const renderItem = ({ item, index }: { item: CoverItem; index: number }) => {
     const handlePress = () => {
-      console.log("Pasaron imagenes: ", item.imagenes)
       const imagenesValidaciones = () => {
         if (item.imagenes && item.imagenes?.length > 1) {
           return item.imagenes;
@@ -87,10 +89,12 @@ export default function CoverflowCarousel({
       if (onPressItem) return onPressItem(item, index);
       if (!item.link) return;
       if (typeof item.link === 'string') router.push(item.link as any, item.imagenes as any);
-      else router.push({ pathname: item.link.pathname, params: {
-        ...item.link.params,
-        imagenes: JSON.stringify(item.imagenes),
-      }, });
+      else router.push({
+        pathname: item.link.pathname, params: {
+          ...item.link.params,
+          imagenes: JSON.stringify(item.imagenes),
+        },
+      });
     };
 
     return (
@@ -109,6 +113,7 @@ export default function CoverflowCarousel({
             cardWidth={CARD_WIDTH}
             cardHeight={CARD_HEIGHT}
             borderRadius={borderRadius}
+            tipodeimagen={tipoCarrusel}
           />
         </Pressable>
       </View>
@@ -149,6 +154,7 @@ function CoverCard({
   cardWidth,
   cardHeight,
   borderRadius,
+  tipodeimagen,
 }: {
   index: number;
   image: ImageSourcePropType;
@@ -158,6 +164,7 @@ function CoverCard({
   cardWidth: number;
   cardHeight: number;
   borderRadius: number;
+  tipodeimagen: string;
 }) {
   // Animación coverflow
   const animatedCard = useAnimatedStyle(() => {
@@ -182,7 +189,7 @@ function CoverCard({
     >
       {/* ÚNICA imagen */}
       <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Image source={image} resizeMode="stretch" style={{ width: '100%', height: '100%' }} />
+        <Image source={image} resizeMode={tipodeimagen as ImageResizeMode } style={{ width: '100%', height: '100%' }} />
       </View>
 
       {/* Título (siempre presente para mantener el layout) */}

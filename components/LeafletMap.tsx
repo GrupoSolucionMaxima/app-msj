@@ -43,7 +43,7 @@ export default function LeafletMap({ lat, lng, zoom = 14, markerTitle = "Ubicaci
       const lng = ${lng};
       const map = L.map('map', { zoomControl: true }).setView([lat, lng], ${zoom});
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: 16,
         attribution: '&copy; OpenStreetMap'
       }).addTo(map);
       L.marker([lat, lng]).addTo(map).bindPopup(${JSON.stringify(markerTitle)});

@@ -50,7 +50,8 @@ type ArticleFromApi = {
   difficulty?: string;
   event_time?: string;
 };
-
+//San José Enacantado, San José City Strides, Imaginando Espacios CR, La Compañia, VIP Bus, San José a Pie
+//ChepeTown, San José Free Walking Tours, Chepecletas
 type HomeContentItem = ContentItem & Partial<ArticleFromApi>;
 
 const API_BASE = "https://msj.gruponbf-testlab.com";
@@ -88,7 +89,7 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
 
   return {
     id: String(a.id),
-    title: "",
+    title: a.title,
     category: a.category,
     notes: a.notes ?? "",
     publishDate,
@@ -106,7 +107,32 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     categoryColor: categoryColor
   };
 };
+//manage of the logos
 
+const asigneNamesLogo = (logoName: string): string => {
+  switch (logoName.trim()) {
+    case "San José Enacantado":
+      return 'sanjose-encantado';
+    case "San José City Strides":
+      return 'sanjose-striders';
+    case "Imaginando Espacios CR":
+      return 'imaginando-espacios';
+    case "La Compañia":
+      return 'lacompania';
+    case "VIP Bus":
+      return 'vip-city';
+    case "San José a Pie":
+      return 'sanjose-pie';
+    case "ChepeTown":
+      return 'chepetown';
+    case "San José Free Walking Tours":
+      return 'sanjosefree-walking';
+    case "Chepecletas":
+      return 'chepecletas-logo';
+    default:
+      return 'chepecletas-logo';
+  }
+}
 const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   const DEFAULT_LAT = '9.9327';
   const DEFAULT_LNG = '-84.0796';
@@ -131,7 +157,7 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   return {
     id: item.id,
     image: imageSource as any,
-    title: item.title,
+    title: "",
     link: {
       pathname: 'experiencias/[id]',
       params: {
@@ -142,8 +168,10 @@ const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
         imgMain: JSON.stringify([item.image_url]),
         indications: indications,
         description: item.description || item.notes || 'Sin descripción.',
+        headerLogo: asigneNamesLogo(item.title),
       }
     },
+    tipoCarrusel: "experiencias"
   };
 };
 export default function ExperienciasScreen() {
@@ -180,7 +208,7 @@ export default function ExperienciasScreen() {
         }
 
         const mappedArticles = json.data.map(mapArticleForHome) as HomeContentItem[];
-       
+
         // 3. FILTRAR POR "Armonía Urbana"
         const filteredData = mappedArticles
           .filter(item =>
