@@ -36,6 +36,8 @@ type Props = {
   activeColor?: string;
   inactiveColor?: string;
   indicatorColor?: string;
+  startIndex?: number; // nuevo
+  endIndex?: number;   // nuevo
 };
 
 export default function EventsTabs({
@@ -55,6 +57,11 @@ export default function EventsTabs({
   const [tab, setTab] = useState<0 | 1 | 2>(0);
   const data = useMemo(() => [all, upcoming, past], [all, upcoming, past]);
 
+  // 🔑 Estado para manejar cuántos eventos se muestran
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  const currentData = useMemo(() => data[tab].slice(0, visibleCount), [data, tab, visibleCount]);
+
   const renderCard = ({ item }: { item: EventItem }) => (
     <Pressable onPress={() => onPressItem?.(item)} style={{ borderRadius }}>
       <EventCard
@@ -67,6 +74,7 @@ export default function EventsTabs({
       />
     </Pressable>
   );
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -109,25 +117,28 @@ export default function EventsTabs({
         </ScrollView>
       </View>
 
-      {/* Lista del tab activo */}
-      <FlatList
-        data={data[tab]}
-        keyExtractor={(i) => i.id}
-        renderItem={renderCard}
-        ItemSeparatorComponent={() => <View style={{ height: gap }} />}
+      {/* Lista con scroll infinito */}
+      <ScrollView
         contentContainerStyle={{
           paddingHorizontal: horizontalPadding,
           paddingTop: 8,
           paddingBottom: 16,
         }}
-        ListEmptyComponent={
-          <Text style={{ color: '#111', paddingHorizontal: horizontalPadding, paddingTop: 16 }}>
-            No hay eventos.
-          </Text>
-        }
-        scrollEnabled={!embedded}
-        showsVerticalScrollIndicator={false}
-      />
+        showsVerticalScrollIndicator={true}
+      >
+        {data[tab].map((item) => (
+          <Pressable key={item.id} onPress={() => onPressItem?.(item)} style={{ borderRadius }}>
+            <EventCard
+              image={item.image}
+              title={item.title}
+              dateText={item.dateText}
+              height={cardHeight}
+              radius={borderRadius}
+              description={item.description}
+            />
+          </Pressable>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -170,7 +181,7 @@ const styles = StyleSheet.create({
   tabText: { fontSize: 14 },
   indicator: { height: 2, borderRadius: 2, marginTop: 6 },
 
-  card: { width: '100%', backgroundColor: '#000', overflow: 'hidden', position: 'relative' },
+  card: { width: '100%', backgroundColor: '#000', overflow: 'hidden', position: 'relative',marginTop:10 },
   cardTextWrap: { position: 'absolute', left: 12, right: 12, bottom: 12 },
   cardTitle: {
     color: '#FFF', fontSize: 16, fontWeight: '700', lineHeight: 20, marginBottom: 2,

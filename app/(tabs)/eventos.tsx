@@ -13,6 +13,18 @@ import {
 import EventsTabs from '@/components/EventsTabs';
 import SearchBarWithFilter from '@/components/SearchBarWithFilterw';
 import { ThemedView } from '@/components/ThemedView';
+const hoy = new Date();
+const fechaFormateada = hoy.toLocaleDateString("es-CR", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+//console.log(fechaFormateada);
+
+
+//console.log(`${dia}/${mes}/${anio}`);
+// Ejemplo: Fri Nov 14 2025 14:05:00 GMT-0600 (Central Standard Time)
 
 // Tipo local que amplía lo que muestra la tarjeta y además
 // lleva datos para la pantalla de detalle.
@@ -26,6 +38,8 @@ type EventListItem = {
   coords?: { lat: number; lng: number };
   ctaUrl?: string;
   bannerKey?: string; // clave local para el banner del detalle (p.ej. "parque-nacional")
+  date_from?: string;
+  date_to?: string;
 };
 
 export interface ContentItem {
@@ -64,6 +78,9 @@ type ArticleFromApi = {
   difficulty?: string;
   event_time?: string;
   address?: string;
+  date_from?: string;
+  date_to?: string;
+
 };
 
 type HomeContentItem = ContentItem & Partial<ArticleFromApi>;
@@ -78,6 +95,11 @@ const formatDate = (d?: string | null) => {
   return d.length >= 10 ? d.slice(0, 10) : d;
 };
 
+//manage of events time filters 
+//const manageEventsTime(){
+
+//}
+
 const computeStatus = (publishDate: string, incoming?: "queue" | "finished"): "queue" | "finished" => {
   if (incoming === "queue" || incoming === "finished") return incoming;
   const today = new Date().toISOString().slice(0, 10);
@@ -87,6 +109,8 @@ const computeStatus = (publishDate: string, incoming?: "queue" | "finished"): "q
 const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
   const publishDate = formatDate(a.publish_date);
   const uploadDate = formatDate(a.created_at);
+  const fechaInicio = formatDate(a.date_from);
+  const dateEnd = formatDate(a.date_to);
 
   let imageUrl = '';
 
@@ -119,14 +143,15 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     difficulty: a.difficulty,
     event_time: a.event_time,
     categoryColor: categoryColor,
-    address:a.address,
+    address: a.address,
+    date_from: fechaInicio,
+    date_to: dateEnd
   };
 };
 
 
 
 const mapApiDataToEventList = (art: HomeContentItem): EventListItem => {
-
   return {
     id: String(art.id),
     image: { uri: art.image_url },
@@ -134,8 +159,9 @@ const mapApiDataToEventList = (art: HomeContentItem): EventListItem => {
     dateText: "todo el mes",
     description: art.description,
     venueName: art.address,
-    bannerKey:art.image_url,
-
+    bannerKey: art.image_url,
+    date_from: art.date_from,
+    date_to: art.date_to
   };
 }
 export default function TabTwoScreen() {
@@ -148,7 +174,8 @@ export default function TabTwoScreen() {
   const [data, setData] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-
+  const [agendaProxima, setAgendaProxima] = useState<EventListItem[]>([])
+  const [agendaAnterior, setAgendaAnterior] = useState<EventListItem[]>([])
   // 2. FUNCIÓN DE FETCH DE DATOS
   useEffect(() => {
     const fetchEventos = async () => {
@@ -172,7 +199,9 @@ export default function TabTwoScreen() {
         if (!json || json.ok !== true || !Array.isArray(json.data)) {
           throw new Error("Respuesta inesperada del servidor");
         }
-
+        /*if (json.ok) {
+          //  console.log("Imprima como viene de la api", json.data)
+        }*/
 
         const mappedArticles = json.data.map(mapArticleForHome) as HomeContentItem[];
 
@@ -184,6 +213,8 @@ export default function TabTwoScreen() {
           .map(mapApiDataToEventList);
         // console.log("estos son los datos extraidos: ", filteredData)
         setData(filteredData);
+        manageEventsTime(filteredData);
+
 
       } catch (e: any) {
 
@@ -191,10 +222,32 @@ export default function TabTwoScreen() {
         setError("Error al cargar el contenido. Intente de nuevo.");
       } finally {
         setLoading(false);
+
       }
     };
     fetchEventos();
   }, []);
+
+  const manageEventsTime = (allEvents: EventListItem[]) => {
+    const hoy = new Date();
+    const dayToday = hoy.getDate();
+    const monthToday = hoy.getMonth() + 1;
+    const yearToday = hoy.getFullYear();
+    const hoyToday = new Date(yearToday + "-" + monthToday + "-" + dayToday);
+    let proximos: EventListItem[] = [];
+    let pasados: EventListItem[] = [];
+    for (let index = 0; index < allEvents.length; index++) {
+      const element = allEvents[index];
+      const datePost = new Date(element.date_to ? element.date_to : "2001-06-06")
+      if (datePost.getTime() > hoyToday.getTime()) {
+        proximos.push(element);
+      } else {
+        pasados.push(element);
+      }
+    }
+    setAgendaProxima(proximos);
+    setAgendaAnterior(pasados);
+  }
   const onPressItem = (item: EventListItem) => {
     router.push({
       pathname: '/events/[id]',
@@ -213,31 +266,32 @@ export default function TabTwoScreen() {
   };
 
   const agenda: EventListItem[] = data; /* [
-  {
-      id: '2',
+      {
+        id: '2',
       image: require('../../assets/events/article-1.png'),
       title: 'Biblioteca Rafael Arias Gomez',
       dateText: 'Todo el mes',
       venueName: 'Biblioteca Municipal Rafael Arias Gómez',
-      coords: { lat: 9.91093, lng: -84.04611 },
+      coords: {lat: 9.91093, lng: -84.04611 },
       ctaUrl: 'https://ejemplo.com/residuos',
       bannerKey: 'banner-default',
       description:
-        '¡Aprenda y descubra nuevas habilidades en la Biblioteca Municipal Rafael Arias Gómez! Le invitamos a ser parte de nuestros cursos y talleres diseñados para todas las edades. Manualidades. Inglés. Centros de lectura. Tecnologías de información. Estimulación temprana. Talleres de verano. San Francisco de Dos Ríos. 2547-6607  bibliotecarafaelarias@hotmail.com',
+      '¡Aprenda y descubra nuevas habilidades en la Biblioteca Municipal Rafael Arias Gómez! Le invitamos a ser parte de nuestros cursos y talleres diseñados para todas las edades. Manualidades. Inglés. Centros de lectura. Tecnologías de información. Estimulación temprana. Talleres de verano. San Francisco de Dos Ríos. 2547-6607  bibliotecarafaelarias@hotmail.com',
     },
-    {
-      id: '3',
+      {
+        id: '3',
       image: require('../../assets/events/art_2.jpg'),
       title: 'Promoviendo la coexistencia con nuestros vecinos silvestres urbanos - taller',
       dateText: '28 de Febrero de 2025',
-      coords: { lat: 9.9327, lng: -84.0796 },
+      coords: {lat: 9.9327, lng: -84.0796 },
       ctaUrl: 'https://ejemplo.com/semana-santa',
       bannerKey: 'art-2',
       description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
-  ];*/
+      ];*/
 
-  const proximos: EventListItem[] = [
+  const proximos: EventListItem[] = agendaProxima;
+  /*[
     {
       id: '4',
       image: require('../../assets/events/10.png'),
@@ -247,8 +301,8 @@ export default function TabTwoScreen() {
       description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
   ];
-
-  const anteriores: EventListItem[] = [
+*/
+  const anteriores: EventListItem[] = agendaAnterior;/* [
     {
       id: '5',
       image: require('../../assets/events/10.png'),
@@ -257,7 +311,7 @@ export default function TabTwoScreen() {
       bannerKey: 'banner-default',
       description: '¡Atención a todos los interesados! Les invitamos cordialmente a una charla especial sobre cómo convivir de manera armoniosa con la fauna silvestre en entornos urbanos. Cuándo: Mañana, viernes 28 de febrero 2025 Dónde: Auditorio del MINAE, San José Requisito: Inscripción previa. No pierda la oportunidad de aprender y ser parte del cambio para una mejor convivencia con la naturaleza .Inscríbase ahora y asegure su espacio. melissa.pinedopinto@unimelb.edu.au',
     },
-  ];
+  ];*/
 
   return (
     <ImageBackground
@@ -279,8 +333,8 @@ export default function TabTwoScreen() {
           </View>
           <EventsTabs
             all={agenda}
-            upcoming={proximos}
-            past={anteriores}
+            upcoming={agendaProxima}
+            past={agendaAnterior}
             embedded
             onPressItem={onPressItem}
           />

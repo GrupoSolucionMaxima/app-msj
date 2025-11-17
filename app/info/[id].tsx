@@ -22,7 +22,7 @@ export default function EventById() {
   const safeCtaUrl  = ctaUrl ?? '';   
   const safeImgMain = imgMain ?? '';  
   const imagenArray = imagenes ? JSON.parse(imagenes as string) : [];
-  console.log("paaaaaaaaaaa", imagenArray)
+
 
 
   return (

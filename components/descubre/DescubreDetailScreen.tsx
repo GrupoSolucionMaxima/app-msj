@@ -303,8 +303,6 @@ export default function EventDetailScreen({
 
   // Array final de imágenes: Si 'images' es vacío, añadimos el fallback local.
   const finalImages = imagenes.length === 0 ? ["parque-nacional"] : imagenes;
-  console.log("Estas imagenes: ", imagenes)
-
 
   const hasIndications = typeof indications === "string" && indications.trim().length > 0;
 

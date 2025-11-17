@@ -23,7 +23,6 @@ export default function EventById() {
   const safeImgMain = imgMain ?? '';
 
   const imagenArray = imagenes ? JSON.parse(imagenes as string) : [];
-  console.log("paaaaaaaaaaa", imagenArray)
 
   return (
     <EventDetailScreen

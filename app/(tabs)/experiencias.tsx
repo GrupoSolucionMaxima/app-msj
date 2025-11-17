@@ -107,32 +107,41 @@ const mapArticleForHome = (a: ArticleFromApi): HomeContentItem => {
     categoryColor: categoryColor
   };
 };
-//manage of the logos
 
+//normalize words, because title of experiences are doesnt normalize
+const normalize = (str: string): string =>
+  str
+    .normalize("NFD") // descompone caracteres acentuados
+    .replace(/[\u0300-\u036f]/g, "") // elimina los diacríticos
+    .trim()
+    .toLowerCase();
+//manage of the logos
 const asigneNamesLogo = (logoName: string): string => {
-  switch (logoName.trim()) {
-    case "San José Enacantado":
-      return 'sanjose-encantado';
-    case "San José City Strides":
-      return 'sanjose-striders';
-    case "Imaginando Espacios CR":
-      return 'imaginando-espacios';
-    case "La Compañia":
-      return 'lacompania';
-    case "VIP Bus":
-      return 'vip-city';
-    case "San José a Pie":
-      return 'sanjose-pie';
-    case "ChepeTown":
-      return 'chepetown';
-    case "San José Free Walking Tours":
-      return 'sanjosefree-walking';
-    case "Chepecletas":
-      return 'chepecletas-logo';
+  const normalized = normalize(logoName).replace(/\s+/g, ''); //elimined space between words
+  switch (normalized) {
+    case "sanjoseencantado":
+      return "sanjose-encantado";
+    case "sanjosecitystriders":
+      return "sanjose-striders";
+    case "imaginandoespacioscr":
+      return "imaginando-espacios";
+    case "lacompania":
+      return "lacompania";
+    case "vipbus":
+      return "vip-city";
+    case "sanjoseapie":
+      return "sanjose-pie";
+    case "chepetown":
+      return "chepetown";
+    case "sanjosefreewalkingtours":
+      return "sanjosefree-walking";
+    case "chepecletas":
+      return "chepecletas-logo";
     default:
-      return 'chepecletas-logo';
+      return "chepecletas-logo";
   }
-}
+};
+
 const mapApiDataToCoverItem = (item: HomeContentItem): CoverItem => {
   const DEFAULT_LAT = '9.9327';
   const DEFAULT_LNG = '-84.0796';
